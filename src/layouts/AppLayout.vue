@@ -1,6 +1,27 @@
 <script setup>
 import Header from '@/layouts/Header.vue'
 import Sidebar from '@/layouts/Sidebar.vue'
+import { ref, onMounted } from 'vue'
+import { UserService } from '@/services/UserService'
+
+const userService = new UserService()
+const userDetails = ref({})
+
+onMounted(async () => {
+    userService.getUserProfileDetailsOnLoad((profile) => {
+        userDetails.value = profile
+    })
+})
+
+function snakeToTitle(str) {
+    return str
+        .trim()
+        .toLowerCase()
+        .split('_')
+        .filter(Boolean)
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ')
+}
 </script>
 
 <template>
@@ -27,8 +48,8 @@ import Sidebar from '@/layouts/Sidebar.vue'
                             class="w-12 h-12 rounded-full"
                         />
                         <div>
-                            <h4 class="font-semibold text-gray-800">Alex Johnson</h4>
-                            <p class="text-sm text-gray-500">Computer Science, Class of 2026</p>
+                            <h4 class="font-semibold text-gray-800">{{ userDetails.firstName + " " + userDetails.lastName }}</h4>
+                            <p class="text-sm text-gray-500">{{ snakeToTitle(userDetails?.program || '') }}, Class of 2026</p>
                         </div>
                     </div>
                     <div class="mt-4 text-gray-600 text-sm leading-snug">

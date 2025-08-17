@@ -1,20 +1,38 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { auth } from '@/config/firebaseConfig'
+import { signInWithEmailAndPassword } from 'firebase/auth'
+import { toast } from 'vue3-toastify'
+import { UserService } from '@/services/UserService'
 
 const router = useRouter()
+const userService = new UserService()
 
 const email = ref('')
 const password = ref('')
-const rememberMe = ref(false)
+const isRememberMe = ref(false)
+const user = ref(null)
 
-const handleSubmit = () => {
-    if(email.value != 'aracelia' || password.value != 'namoc'){
-        alert('Invalid Credentials')
-        return;
+// Hellow rodl
+
+// login function
+const handleLogin = async () => {
+    try {
+        const users = await userService.login(email.value, password.value)
+        console.log(users)
+        toast.success('LogIn success')
+        router.push('/feed')
+    } catch (err) {
+        console.error(err) // full error
+        const friendlyMessages = {
+            'auth/user-not-found': 'No account found for that email.',
+            'auth/wrong-password': 'Incorrect password. Please try again.',
+            'auth/invalid-email': 'Invalid email format.',
+            'auth/invalid-credential': 'Invalid Credentials.',
+        }
+        toast.error(friendlyMessages[err.code] || 'Something went wrong, please try again.')
     }
-
-    router.push('/feed')
 }
 </script>
 <template>
@@ -28,7 +46,9 @@ const handleSubmit = () => {
                 </h2>
                 <p class="mt-2 text-center text-sm text-gray-600">
                     Or
-                    <router-link to="/register" class="font-medium text-indigo-600 hover:text-indigo-500"
+                    <router-link
+                        to="/register"
+                        class="font-medium text-indigo-600 hover:text-indigo-500"
                         >create a new account</router-link
                     >
                 </p>
@@ -39,8 +59,8 @@ const handleSubmit = () => {
                     <div>
                         <label for="email-address" class="sr-only">Email address</label>
                         <input
-                            v-model="email"
                             id="email-address"
+                            v-model="email"
                             name="email"
                             type="email"
                             autocomplete="email"
@@ -66,7 +86,7 @@ const handleSubmit = () => {
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
                         <input
-                            v-model="rememberMe"
+                            v-model="isRememberMe"
                             id="remember-me"
                             name="remember-me"
                             type="checkbox"
@@ -84,7 +104,7 @@ const handleSubmit = () => {
                 </div>
                 <div>
                     <button
-                        @click="handleSubmit"
+                        @click="handleLogin"
                         type="button"
                         class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >

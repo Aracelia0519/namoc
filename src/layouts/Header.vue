@@ -86,14 +86,16 @@ const toggleDropdownMenu = () => {
                         :class="{ hidden: !isProfileDropdownToggle }"
                     >
                         <a
-                            href="profile.html"
+                            href="/profile"
                             class="block px-4 py-2 text-gray-600 hover:bg-gray-100"
                             >View Profile</a
                         >
                         <a href="#settings" class="block px-4 py-2 text-gray-600 hover:bg-gray-100"
                             >Settings</a
                         >
-                        <a href="#logout" class="block px-4 py-2 text-gray-600 hover:bg-gray-100"
+                        <a 
+                        href="/login"
+                        class="block px-4 py-2 text-gray-600 hover:bg-gray-100"
                             >Log Out</a
                         >
                     </div>
