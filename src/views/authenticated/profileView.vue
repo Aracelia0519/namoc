@@ -1,36 +1,52 @@
-<!-- updated -->
 <script setup>
-import { ref, onMounted } from 'vue'
-import { UserService } from '@/services/UserService'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { auth, db } from '@/config/firebaseConfig'
+import { onAuthStateChanged } from 'firebase/auth'
+import { doc, getDoc } from 'firebase/firestore'
 
-const userService = new UserService()
 const userDetails = ref({})
 
-function snakeToTitle(str) {
-    return str
-        .trim()
-        .toLowerCase()
-        .split('_')
-        .filter(Boolean)
-        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-        .join(' ')
+// Get user details
+const fetchUserDetails = async (userId) => {
+    try {
+        const docRef = doc(db, 'users', userId)
+        const docSnap = await getDoc(docRef)
+
+        if (docSnap.exists()) {
+            userDetails.value = docSnap.data()
+        } else {
+            userDetails.value = null
+        }
+    } catch (error) {
+        console.error('Error getting document: ', error)
+    }
 }
 
-onMounted(async () => {
-    userService.getUserProfileDetailsOnLoad((profile) => {
-        userDetails.value = profile
+onMounted(() => {
+    onAuthStateChanged(auth, async () => {
+        console.log(auth.currentUser.uid)
+        fetchUserDetails(auth.currentUser.uid)
     })
+
+    console.log('Mounted successfully')
+})
+
+onUnmounted(() => {
+    console.log('Bye bye..')
 })
 </script>
 <template>
+    <!-- Cover & Basic Info -->
     <div class="bg-white rounded-lg shadow overflow-hidden">
         <div class="h-40 bg-indigo-600 relative">
+            <!-- Cover image overlay with gradient for readability -->
             <img
                 src="https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=1200&q=80"
                 alt="Cover"
                 class="w-full h-full object-cover opacity-80"
             />
             <div class="absolute inset-0 bg-indigo-600 opacity-50"></div>
+            <!-- Avatar and name overlay -->
             <div class="absolute bottom-0 left-0 ml-6 mb-6 flex items-center space-x-4">
                 <img
                     src="https://images.unsplash.com/photo-1499714608240-22fc6ad53fb2?auto=format&fit=facearea&facepad=3&w=64&h=64&q=80"
@@ -38,19 +54,19 @@ onMounted(async () => {
                     class="w-20 h-20 rounded-full border-4 border-white"
                 />
                 <div class="text-white">
-                    <h2 class="text-2xl font-bold">
-                        {{ userDetails.firstName + " " + userDetails.lastName }}
-                    </h2>
+                    <h2 class="text-2xl font-bold"></h2>
                     <p class="text-sm">
-                        {{ snakeToTitle(userDetails?.program || '') }} – Class of 2026
+                        {{ userDetails?.firstName }} {{ userDetails?.lastName }} – Class of 2026
                     </p>
                 </div>
             </div>
         </div>
+        <!-- Profile actions -->
         <div class="p-4 flex justify-between items-center">
             <div>
                 <span class="text-sm text-gray-600">Manila, Philippines</span>
             </div>
+            <span class="text-sm text-gray-600">{{ userDetails?.followersCount }} followersCount</span>
             <button
                 class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 text-sm"
             >
@@ -58,25 +74,22 @@ onMounted(async () => {
             </button>
         </div>
     </div>
+    <!-- About Section -->
     <section class="bg-white rounded-lg shadow p-6">
         <h3 class="text-lg font-semibold mb-4">About</h3>
-        <span>
-          <p>{{ userDetails.firstName + " " + userDetails.lastName }}</p>
-        </span>
-        <p class="text-gray-700 mb-4">
-            {{ userDetails.about }}
-        </p>
-        
+        <p class="text-gray-700 mb-4">{{ userDetails?.about }}</p>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
-            <div><span class="font-medium">Major:</span> {{ snakeToTitle(userDetails?.program || '') }}</div>
+            <div><span class="font-medium">Program:</span> {{ userDetails?.program }}</div>
             <div><span class="font-medium">Year:</span> Junior (Class of 2026)</div>
-            <div><span class="font-medium">Email:</span> {{  userDetails.email }}</div>
+            <div><span class="font-medium">Email:</span> {{ userDetails?.email }}</div>
             <div><span class="font-medium">Interests:</span> AI, Robotics, Music</div>
             <div><span class="font-medium">Skills:</span> Python, C++, React</div>
         </div>
     </section>
+    <!-- Recent Posts -->
     <section class="bg-white rounded-lg shadow p-6 space-y-6">
         <h3 class="text-lg font-semibold">Recent Posts</h3>
+        <!-- Post item -->
         <div class="border-t pt-4 first:border-t-0 first:pt-0">
             <div class="flex items-start space-x-3">
                 <img
@@ -87,7 +100,7 @@ onMounted(async () => {
                 <div class="flex-1">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h4 class="font-semibold text-gray-800">{{ userDetails.firstName + " " + userDetails.lastName }}</h4>
+                            <h4 class="font-semibold text-gray-800">Alex Johnson</h4>
                             <span class="text-sm text-gray-500">Posted 3 days ago</span>
                         </div>
                         <button class="text-gray-400 hover:text-gray-600">
@@ -156,7 +169,7 @@ onMounted(async () => {
                 <div class="flex-1">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h4 class="font-semibold text-gray-800">{{ userDetails.firstName + " " + userDetails.lastName }}</h4>
+                            <h4 class="font-semibold text-gray-800">Alex Johnson</h4>
                             <span class="text-sm text-gray-500">Posted 1 week ago</span>
                         </div>
                         <button class="text-gray-400 hover:text-gray-600">
@@ -215,9 +228,11 @@ onMounted(async () => {
             </div>
         </div>
     </section>
+    <!-- Friends Section -->
     <section class="bg-white rounded-lg shadow p-6">
         <h3 class="text-lg font-semibold mb-4">Friends</h3>
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <!-- Friend card -->
             <div class="flex flex-col items-center text-center">
                 <img
                     src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=facearea&facepad=3&w=64&h=64&q=80"

@@ -1,20 +1,23 @@
+// Import needed Firebase modules
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 import { getStorage } from 'firebase/storage'
 
+// Your Firebase project configuration (from Firebase console)
 const firebaseConfig = {
-    apiKey: 'AIzaSyB03XsQyiYpOp7mC8vfLstpfkKFZMM9QBg',
-    authDomain: 'edu-platform-cb934.firebaseapp.com',
-    projectId: 'edu-platform-cb934',
-    storageBucket: 'edu-platform-cb934.firebasestorage.app',
-    messagingSenderId: '589323055756',
-    appId: '1:589323055756:web:cddbbe9db0b93e0e7e01a9',
-    measurementId: 'G-36XQRWPWPD',
+    apiKey: 'AIzaSyBFabHR6sDor3Np52rCPCC2m49zUgt120A',
+    authDomain: 'edu-platform-95c0f.firebaseapp.com',
+    projectId: 'edu-platform-95c0f',
+    storageBucket: 'edu-platform-95c0f.firebasestorage.app',
+    messagingSenderId: '285378478750',
+    appId: '1:285378478750:web:63a846a88f748f4976b18f',
 }
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig)
 
+// Export Firebase services
 export const auth = getAuth(app)
 export const db = getFirestore(app)
 export const storage = getStorage(app)

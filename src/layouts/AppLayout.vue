@@ -48,7 +48,7 @@ function snakeToTitle(str) {
                             class="w-12 h-12 rounded-full"
                         />
                         <div>
-                            <h4 class="font-semibold text-gray-800">{{ userDetails.firstName + " " + userDetails.lastName }}</h4>
+                            <h4 class="font-semibold text-gray-800">{{ userDetails?.firstName + " " + userDetails?.lastName }}</h4>
                             <p class="text-sm text-gray-500">{{ snakeToTitle(userDetails?.program || '') }}, Class of 2026</p>
                         </div>
                     </div>
